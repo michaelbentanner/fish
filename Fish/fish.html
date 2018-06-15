@@ -8,7 +8,97 @@
 				sjs.open("target", 800, 500);
 
 				var background = new sjs.Image("Images/space.png");
-				background.setSize
+				background.setSize(sjs.getWidth(), sjs.getHeight());
+
+				//Player Properties below here
+				var player = new sjs.Image("Images/spaceship_left.png")
+				player.type = "player";
+				player.setSize(100,50);
+				player.friction = .1;
+				player.accel = .5;
+
+				sjs.keyDown(RIGHT_KEY, function(){
+					player.setImage("Images/spaceship_right.png");
+					player.pushRight();
+				});
+
+				sjs.keyDown(LEFT_KEY, function(){
+					player.setImage("Images/spaceship_left.png");
+					player.pushLeft();
+				});
+
+				sjs.keyDown(UP_KEY, function(){
+					player.pushUp();
+				});
+
+				sjs.keyDown(DOWN_KEY, function(){
+					player.pushDown();
+				});
+
+				//Crumbs
+				setInterval(function(){
+					var x = Math.floor(Math.random() * 783);
+					var y = Math.floor(Math.random() * 470);
+					var powerUp = new sjs.Image("Images/crumbs.png");
+					powerUp.type = "powerUp";
+					powerUp.setGravity();
+					powerUp.setSize(17, 30);
+					powerUp.noBounds = true;
+					powerUp.moveTo(x, y);
+					powerUp.friction = .2;
+				}, 5000);
+
+				sjs.onHit("powerUp","bottom_screen",function(x,y){
+					x.destroy();
+				});
+
+				sjs.onHit("player","powerUp",function(x,y){
+					x.grow(60,30);
+					setTimeout(function(){
+						x.grow(-60,-30);
+					}, 4000);
+					y.destroy();
+				});
+
+				//Enemies
+				setInterval(function(){
+					var speed = Math.round(1 + Math.random()*10);
+					if(Math.random() > 0.5){
+						var enemy = new sjs.Image("Images/titan_right.png");
+						enemy.type = "enemy";
+						enemy.setSize(100,50);
+						enemy.noBounds = true;
+						enemy.friction = 0;
+						enemy.pushRight(speed);
+						enemy.scaleSize(.5 + Math.random() * 1.2);
+						enemy.moveTo(-enemy.getWidth(), Math.random()*(enemy.getClamp().y));
+					} else {
+						var enemy = new sjs.Image("Images/titan_left.png");
+						enemy.type = "enemy";
+						enemy.setSize(100,50);
+						enemy.noBounds = true;
+						enemy.friction = 0;
+						enemy.pushLeft(speed);
+						enemy.scaleSize(.5 + Math.random() * 1.2); 
+						enemy.moveTo(sjs.getWidth(), Math.random()*(enemy.getClamp().y));
+					}
+				},1000);
+
+				sjs.left_screen.offset(-500);
+				sjs.right_screen.offset(500);
+
+				sjs.onHit("enemy",["right_screen","left_screen"], function(x,y){
+					x.destroy();
+				});
+
+				sjs.onHit("player","enemy", function(x,y){
+					if(x.getWidth() > y.getWidth() && x.getHeight() > y.getHeight()) {
+						x.grow(10,5);
+					} else {
+						x.destroy();
+					}
+					y.destroy();
+				});
 
 			} //end start
 		</script>
